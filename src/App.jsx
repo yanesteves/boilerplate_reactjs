@@ -6,9 +6,11 @@ import HeaderComponent from './components/OthersComponents/HeaderComponent.jsx';
 import SidebarComponent from './components/OthersComponents/SidebarComponent.jsx';
 
 import './App.css'
+import HomePage from './pages/HomePage.jsx';
 
 function App() {
-  const { isAuthenticated } = useAuth()
+  // const { isAuthenticated } = useAuth()
+  const isAuthenticated = true;
 
   return (
     <>
@@ -18,7 +20,8 @@ function App() {
             <div className='grid-container'>
               <HeaderComponent />
               <SidebarComponent />
-              <RoutesComponent />
+              {/* <RoutesComponent /> */}
+              <HomePage />
             </div>
           ) : (
             <RoutesComponent />
