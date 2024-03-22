@@ -3,11 +3,11 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - develop
       - production
   pull_request:
     branches:
-      - master
+      - develop
       - production
 
 jobs:
@@ -17,47 +17,46 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js $ {{ matrix.node-version }}
-        uses: action/setup-node@v3
-        with:
-        node-version: $ {{ matrix.node-version }}
-      - name: Install dependencies
-        run: npm install
-      - name: Run Tests
-        run: npm run test
-      - name: Build
-        run: npm run build
-      - name: Merge Conflict Check
-        if: github.event_name == 'pull_request'
-        uses: action/github-script@v5
-        with:
-          script: |
-          const result = await github.rest.pulls.get({ 
-            owner: context.repo.owner, 
-            repo: context.repo.repo, 
-            pull_number: context.issue.number });
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm install
+    - name: Run tests
+      run: npm run test
+    - name: Build
+      run: npm run build
+    - name: Merge Conflict Check
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const result = await github.rest.pulls.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number
+          });
           if (result.data.mergeable_state === 'dirty') {
-            throw new Error('Encontrado conflito no merge')
+            throw new Error('Merge conflicts detected!');
           }
 
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/production' 
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/production'
     steps:
-      - uses: action/checkout@v3
+      - uses: actions/checkout@v3
       - name: Use Node.js 16.x
-        uses: action/setup-node@v3
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - name: Install dependencies
         run: npm install
-      - name: Deploy to Vercel (Dev)
-        if: github.ref == 'refs/heads/master'
+      - name: Deploy to Development Environment
+        if: github.ref == 'refs/heads/develop'
         run: npm run deploy_dev
-      - name: Deploy to Vercel (Prod)
+      - name: Deploy to Production Environment
         if: github.ref == 'refs/heads/production'
         run: npm run deploy_prod
-
-      
