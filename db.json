@@ -1,0 +1,7 @@
+{
+    "tasks": [
+        {"id": 1, "title": "Tarefa 1", "status": "Pendente"},
+        {"id": 1, "title": "Tarefa 2", "status": "Andamento"},
+        {"id": 1, "title": "Tarefa 3", "status": "Concluído"}
+    ]
+}
